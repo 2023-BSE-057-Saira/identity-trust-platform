@@ -1,0 +1,19 @@
+# Virtual environment
+venv/
+
+# Environment variables (contains SECRET_KEY - never commit this)
+.env
+
+# Python
+__pycache__/
+*.pyc
+
+# Uploaded files (test data, not source code)
+data/uploads/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/

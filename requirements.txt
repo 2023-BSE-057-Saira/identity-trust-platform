@@ -1,0 +1,41 @@
+# --- Core API ---
+fastapi==0.115.0
+uvicorn[standard]==0.30.6
+pydantic==2.9.2
+email-validator==2.2.0     # required for pydantic's EmailStr type used in auth schemas
+python-multipart==0.0.9
+
+# --- Database ---
+sqlalchemy==2.0.35
+psycopg2-binary==2.9.9
+alembic==1.13.2
+
+# --- Document Intelligence (OCR + forgery checks) ---
+# NOTE: paddleocr/paddlepaddle were dropped - they pin an old protobuf version
+# that conflicts with mediapipe/onnxruntime (needed for face/liveness).
+# pytesseract avoids this conflict entirely and is sufficient for the demo.
+opencv-python==4.10.0.84
+pillow==10.4.0
+pytesseract==0.3.13
+scikit-image==0.24.0       # SSIM comparison for signature_verification.py
+
+# --- Face Verification + Liveness ---
+insightface==0.7.3
+onnxruntime==1.19.2        # CPU inference for insightface models
+mediapipe==0.10.14         # face landmarks for blink/liveness detection
+numpy==1.26.4
+scipy==1.14.1
+
+# --- Auth ---
+python-jose[cryptography]==3.3.0
+passlib==1.7.4
+bcrypt==4.0.1              # pinned: passlib 1.7.4 is incompatible with bcrypt>=4.1 (breaks password hashing)
+
+# --- Utilities ---
+python-dotenv==1.0.1
+loguru==0.7.2
+
+# NOTE: Deepfake detection, Voice auth, Trust scoring, Knowledge graph
+# dependencies (torch, whisper, neo4j, langgraph, etc.) will be added
+# in requirements-week2.txt and requirements-week3.txt so week 1 setup
+# stays lightweight and doesn't fail on a slow install.

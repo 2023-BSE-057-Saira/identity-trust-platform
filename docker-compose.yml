@@ -1,0 +1,29 @@
+version: "3.9"
+
+services:
+  postgres:
+    image: postgres:16
+    container_name: idtrust_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: idtrust
+      POSTGRES_PASSWORD: idtrust_dev_pw
+      POSTGRES_DB: idtrust_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  redis:
+    image: redis:7-alpine
+    container_name: idtrust_redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+
+  # Neo4j and Kafka are intentionally NOT included yet.
+  # Add them in week 3 when the Knowledge Graph + event pipeline work starts.
+  # Spinning them up now just burns RAM/CPU for services nobody is using.
+
+volumes:
+  pgdata:
