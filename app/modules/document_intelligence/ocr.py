@@ -23,7 +23,7 @@ import re
 from typing import Dict, List, Optional
 
 import pytesseract
-from PIL import Image
+from PIL import Image, ImageEnhance, ImageFilter
 
 # If Tesseract isn't on your system PATH, uncomment and set this to your
 # actual install path:
@@ -33,6 +33,32 @@ TESSERACT_CMD_ENV = os.getenv("TESSERACT_CMD")
 if TESSERACT_CMD_ENV:
     pytesseract.pytesseract.tesseract_cmd = TESSERACT_CMD_ENV
 
+# Minimum width, in pixels, below which we upscale before OCR. Tested
+# against a real 235x148px ID mockup: raw OCR produced pure garbage
+# ("onde ahsa errmen nce"), 4x upscale + grayscale + contrast enhancement
+# made the card header and name reliably readable. Numbers/dates on a
+# heavily decorated/watermarked template still won't be perfect - that's
+# a source-image-quality limitation, not something software fully fixes.
+MIN_OCR_WIDTH_PX = 800
+
+
+def _preprocess_for_ocr(img: Image.Image) -> Image.Image:
+    """
+    Upscales small images and boosts contrast before OCR. This is applied
+    automatically to every image - most phone/webcam captures of an ID
+    are higher-res than this and won't be touched much, but low-res
+    mockups/screenshots get a real accuracy boost.
+    """
+    if img.width < MIN_OCR_WIDTH_PX:
+        scale = max(2, MIN_OCR_WIDTH_PX // max(img.width, 1))
+        img = img.resize((img.width * scale, img.height * scale), Image.LANCZOS)
+
+    gray = img.convert("L")
+    enhancer = ImageEnhance.Contrast(gray)
+    enhanced = enhancer.enhance(1.8)
+    sharpened = enhanced.filter(ImageFilter.SHARPEN)
+    return sharpened
+
 
 def extract_text(image_path: str) -> List[Dict]:
     """
@@ -41,7 +67,13 @@ def extract_text(image_path: str) -> List[Dict]:
     downstream needs to change).
     """
     img = Image.open(image_path)
-    data = pytesseract.image_to_data(img, output_type=pytesseract.Output.DICT)
+    img = _preprocess_for_ocr(img)
+
+    # psm 6 = "assume a single uniform block of text" - tested against
+    # default (psm 3) on a cluttered ID template and gave slightly more
+    # consistent line grouping. Not a dramatic difference, but a small,
+    # free improvement.
+    data = pytesseract.image_to_data(img, config="--psm 6", output_type=pytesseract.Output.DICT)
 
     extracted = []
     n_boxes = len(data["text"])

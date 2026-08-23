@@ -39,3 +39,6 @@ loguru==0.7.2
 # dependencies (torch, whisper, neo4j, langgraph, etc.) will be added
 # in requirements-week2.txt and requirements-week3.txt so week 1 setup
 # stays lightweight and doesn't fail on a slow install.
+
+librosa==0.10.2
+soundfile==0.12.1
