@@ -23,9 +23,6 @@ class User(Base):
     email = Column(String, unique=True, nullable=False, index=True)
     hashed_password = Column(String, nullable=False)
     role = Column(String, default="applicant")  # applicant, analyst, admin
-    # "applicant" = normal end user going through KYC
-    # "analyst"   = security team using the AI Identity Copilot / dashboard
-    # "admin"     = full access
     is_active = Column(Boolean, default=True)
 
     created_at = Column(DateTime, default=datetime.utcnow)
@@ -37,22 +34,20 @@ class User(Base):
 class Document(Base):
     """
     Represents an uploaded ID / passport / license.
-    This table doubles as an input node for the Week 3 Knowledge Graph
-    (User -> Document edges), so keep extracted_fields structured.
     """
     __tablename__ = "documents"
 
     id = Column(UUID(as_uuid=False), primary_key=True, default=gen_uuid)
     user_id = Column(UUID(as_uuid=False), ForeignKey("users.id"), nullable=True)
-    document_type = Column(String, nullable=False)  # national_id, passport, license, employee_id, residence_permit
+    document_type = Column(String, nullable=False)
     file_path = Column(String, nullable=False)
 
-    extracted_fields = Column(JSON, nullable=True)   # OCR output: name, dob, doc_number, expiry, mrz, etc.
+    extracted_fields = Column(JSON, nullable=True)
     ocr_confidence = Column(Float, nullable=True)
 
     is_forged = Column(Boolean, default=False)
-    forgery_reasons = Column(JSON, nullable=True)     # list of triggered checks, for explainability
-    forgery_score = Column(Float, nullable=True)      # 0.0 (clean) - 1.0 (highly suspicious)
+    forgery_reasons = Column(JSON, nullable=True)
+    forgery_score = Column(Float, nullable=True)
 
     created_at = Column(DateTime, default=datetime.utcnow)
 
@@ -61,8 +56,8 @@ class Document(Base):
 
 class VerificationSession(Base):
     """
-    One KYC attempt: ties together document check + face match + liveness result.
-    Trust Scoring Engine (Week 2) will read from this table.
+    One KYC attempt: ties together document check + face match + liveness +
+    deepfake + voice + trust score.
     """
     __tablename__ = "verification_sessions"
 
@@ -72,21 +67,21 @@ class VerificationSession(Base):
 
     selfie_path = Column(String, nullable=True)
 
-    face_match_score = Column(Float, nullable=True)     # cosine similarity, 0-1
+    face_match_score = Column(Float, nullable=True)
     face_match_passed = Column(Boolean, nullable=True)
 
     liveness_passed = Column(Boolean, nullable=True)
-    liveness_details = Column(JSON, nullable=True)       # e.g. {"blinks_detected": 2, "ear_min": 0.18}
+    liveness_details = Column(JSON, nullable=True)
 
-    # Filled in during Week 2 (kept here now so schema doesn't need migration later)
     deepfake_score = Column(Float, nullable=True)
     voice_match_score = Column(Float, nullable=True)
+    voice_spoof_score = Column(Float, nullable=True)
     trust_score = Column(Float, nullable=True)
 
-    device_fingerprint = Column(String, nullable=True, index=True)  # feeds Week 3 knowledge graph
+    device_fingerprint = Column(String, nullable=True, index=True)
     ip_address = Column(String, nullable=True, index=True)
 
-    status = Column(String, default="pending")  # pending, passed, failed, review
+    status = Column(String, default="pending")
     created_at = Column(DateTime, default=datetime.utcnow)
 
     user = relationship("User", back_populates="sessions")
