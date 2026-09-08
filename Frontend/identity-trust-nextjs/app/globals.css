@@ -1,0 +1,55 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/*
+  Design system tokens - dark-native analyst console, not a light theme
+  with dark mode bolted on. Stored as raw HSL triples (not hex) so
+  Tailwind's opacity modifiers work correctly (bg-destructive/10 etc.) -
+  this is the standard shadcn/ui pattern for Tailwind v3.
+*/
+:root {
+  --background: 220 49% 8%;
+  --foreground: 220 20% 94%;
+
+  --card: 218 45% 16%;
+  --card-foreground: 220 20% 94%;
+
+  --popover: 218 45% 16%;
+  --popover-foreground: 220 20% 94%;
+
+  --primary: 172 50% 50%;
+  --primary-foreground: 220 49% 8%;
+
+  --secondary: 217 41% 20%;
+  --secondary-foreground: 220 20% 94%;
+
+  --muted: 217 41% 20%;
+  --muted-foreground: 219 24% 69%;
+
+  --accent: 217 41% 20%;
+  --accent-foreground: 220 20% 94%;
+
+  --destructive: 5 63% 57%;
+  --destructive-foreground: 220 20% 94%;
+
+  --caution: 36 79% 57%;
+  --caution-foreground: 220 49% 8%;
+
+  --border: 218 34% 25%;
+  --input: 218 34% 25%;
+  --ring: 172 50% 50%;
+
+  --radius: 0.625rem;
+}
+
+body {
+  background-color: hsl(var(--background));
+  color: hsl(var(--foreground));
+  font-family: "IBM Plex Sans", ui-sans-serif, sans-serif;
+}
+
+.font-mono-tabular {
+  font-family: "IBM Plex Mono", ui-monospace, monospace;
+  font-variant-numeric: tabular-nums;
+}
